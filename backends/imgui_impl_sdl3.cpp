@@ -101,6 +101,7 @@
 #define SDLK_GRAVE SDLK_BACKQUOTE
 #endif
 
+static ImVec2 g_mouse_scale = { 1.0f, 1.0f };
 // SDL Data
 struct ImGui_ImplSDL3_Data
 {
@@ -387,7 +388,11 @@ bool ImGui_ImplSDL3_ProcessEvent(const SDL_Event* event)
                 return false;
             ImVec2 mouse_pos((float)event->motion.x, (float)event->motion.y);
             io.AddMouseSourceEvent(event->motion.which == SDL_TOUCH_MOUSEID ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
-            io.AddMousePosEvent(mouse_pos.x, mouse_pos.y);
+            //io.AddMousePosEvent(mouse_pos.x, mouse_pos.y);
+			io.AddMousePosEvent(
+                mouse_pos.x * g_mouse_scale.x,
+                mouse_pos.y * g_mouse_scale.y
+            );
             return true;
         }
         case SDL_EVENT_MOUSE_WHEEL:
@@ -672,7 +677,11 @@ static void ImGui_ImplSDL3_UpdateMouseData()
             SDL_GetWindowPosition(focused_window, &window_x, &window_y);
             mouse_x -= window_x;
             mouse_y -= window_y;
-            io.AddMousePosEvent(mouse_x, mouse_y);
+            //io.AddMousePosEvent(mouse_x, mouse_y);
+			io.AddMousePosEvent(
+                g_mouse_scale.x * mouse_x,
+                g_mouse_scale.y * mouse_y
+            );
         }
     }
 }
@@ -827,6 +836,14 @@ static void ImGui_ImplSDL3_GetWindowSizeAndFramebufferScale(SDL_Window* window, 
         *out_size = ImVec2((float)w, (float)h);
     if (out_framebuffer_scale != nullptr)
         *out_framebuffer_scale = ImVec2(fb_scale_x, fb_scale_y);
+
+#if defined(__EMSCRIPTEN__) || defined(__APPLE__)
+    g_mouse_scale = ImVec2(fb_scale_x, fb_scale_y);
+	if (out_framebuffer_scale != nullptr)
+		*out_framebuffer_scale = ImVec2(1.0f, 1.0f);
+	 if (out_size != nullptr)
+        *out_size = ImVec2(fb_scale_x*w, fb_scale_y*h);
+#endif
 }
 
 void ImGui_ImplSDL3_NewFrame()
