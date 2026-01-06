@@ -4000,7 +4000,7 @@ void ImGui::TableGcCompactTransientBuffers(ImGuiTable* table)
     IM_ASSERT(table->MemoryCompacted == false);
     table->SortSpecs.Specs = NULL;
     table->SortSpecsMulti.clear();
-    table->IsSortSpecsDirty = true; // FIXME: In theory shouldn't have to leak into user performing a sort on resume.
+    //table->IsSortSpecsDirty = true; // FIXME: In theory shouldn't have to leak into user performing a sort on resume.
     table->ColumnsNames.clear();
     table->MemoryCompacted = true;
     for (int n = 0; n < table->ColumnsCount; n++)
